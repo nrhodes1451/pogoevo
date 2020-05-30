@@ -1,0 +1,2 @@
+Class poke(species, moveset):
+    
