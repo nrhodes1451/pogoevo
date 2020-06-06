@@ -4,6 +4,12 @@ import pickle as pkl
 fp = "../database.xlsx"
 
 types = pd.read_excel(fp, "Types")
+types['t1'] = types['t1'].map(lambda x: x[:3])
+types['t2'] = types['t2'].map(lambda x: x[:3])
+types = {n: grp.loc[n].to_dict()['eff']
+         for n, grp in types.set_index(
+             ['t1', 't2']).groupby(level='t1')}
+pkl.dump(types, open("../data/types.pkl", "wb"))
 
 cp = pd.read_excel(fp, "CP Mult").to_dict("records")
 cp = {r['Level']:r['CP multiplier'] for r in cp}
