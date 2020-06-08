@@ -11,18 +11,22 @@ class Poke():
                  species,
                  ivs = [15, 15, 15],
                  level = 40,
-                 moveset = None):
+                 moveset = None,
+                 turn_length = 0.5):
         self.data = data
         self.cp_mults = data['cp']
         self.species = data['pokes'][species]
         self.ivs = ivs
         self.level = level
         self.moveset = self.get_moveset(moveset)
+        self.turn_length = turn_length
         self.stats = self.calculate_stats()
         self.cp = self.calculate_cp()
         self.hp = self.stats['sta']
         self.fainted = False
         self.energy = 0
+        self.cooldown = 0
+
 
     def calculate_stats(self):
         stats = {
@@ -32,19 +36,39 @@ class Poke():
         }
         return stats
 
+
     def calculate_cp(self):
         return max(10, math.floor((self.stats['atk'] * 
                  self.stats['def']**0.5 *
                  self.stats['sta']**0.5 *
                  self.cp_mults[self.level]**2)/10))
 
+
     def get_moveset(self, moveset):
         if moveset is None:
             fast = self.species['field_primary_moves'].split(", ")
             charge = self.species['field_secondary_moves'].split(", ")
             return {
-                'fast': Move(self.data, random.choice(fast)),
-                'charge': Move(self.data, random.choice(charge))
+                'fast': Move(self.data['moves'], random.choice(fast)),
+                'charge': Move(self.data['moves'], random.choice(charge))
             }
         else:
             return moveset
+
+    
+    def attack(self, opponent):
+        if self.cooldown > 0:
+            #todo 
+            return
+        elif self.charged:
+            #todo
+            return
+        else:
+            self.fast_attack(opponent)
+
+        self.cooldown = self.cooldown - self.turn_length
+        if 
+
+
+    def charged(self):
+        return self.energy >= self.moveset['charge'].energy

@@ -8,5 +8,5 @@ ivy = Poke(data, 'Ivysaur')
 mew = Poke(data, 'Mew')
 
 def test_cp():
-    assert ivy.cp == 1699
+    assert ivy.cp == 1699p
     assert mew.cp == 3265
