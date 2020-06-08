@@ -8,7 +8,13 @@ class Battle():
         self.victor = None
         self.shields = shields
         self.switching = switching
+        self.reaction_time = 0
+        self.ticker = 0
 
 
-    def fight(self):
-        return False
+    def run_battle(self):
+        # Main battle while loop
+        while self.victor is None:
+            
+
+    def attack(self)

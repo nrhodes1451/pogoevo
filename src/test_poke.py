@@ -1,11 +1,11 @@
-from poke import poke
+from poke import *
 import pickle as pkl
 import math
 
-pokes = pkl.load(open("data/processed_pokes.pkl", "rb"))
+data = pkl.load(open("data/dataset.pkl", "rb"))
 
-ivy = Poke(pokes['Ivysaur'])
-mew = Poke(pokes['Mew'])
+ivy = Poke(data, 'Ivysaur')
+mew = Poke(data, 'Mew')
 
 def test_cp():
     assert ivy.cp == 1699

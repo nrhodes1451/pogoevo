@@ -34,3 +34,13 @@ db = pd.read_excel(fp, "Database")
 db = db.drop(columns=['CP', 'Product (k)', 'P/CP'])
 db = db.set_index("Name").to_dict("index")
 pkl.dump(db, open("../data/pogostats.pkl", "wb"))
+
+pokes = pkl.load(open("../data/processed_pokes.pkl", "rb"))
+
+dataset = {
+    'pokes': pokes,
+    'moves': moves,
+    'cp': cp,
+    'moves': moves
+}
+pkl.dump(dataset, open("../data/dataset.pkl", "wb"))

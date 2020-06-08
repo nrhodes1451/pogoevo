@@ -1,13 +1,13 @@
 from team import *
 from poke import *
 
-pokes = pkl.load(open("../data/processed_pokes.pkl", "rb"))
+data = pkl.load(open("data/dataset.pkl", "rb"))
 
-ivy = ivy = Poke(pokes['Ivysaur'])
-mew = Poke(pokes['Mew'])
-rhydon = Poke(pokes['Rhydon'])
+ivy = ivy = Poke(data, 'Ivysaur')
+mew = Poke(data, 'Mew')
+rhydon = Poke(data, 'Rhydon')
 
 test_team = Team([ivy, mew, rhydon])
 
 def test_creation():
-    assert len(test_team.pokes)==3
+    assert len(test_team.pokes) == 3
