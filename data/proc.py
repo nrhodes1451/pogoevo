@@ -41,6 +41,6 @@ dataset = {
     'pokes': pokes,
     'moves': moves,
     'cp': cp,
-    'moves': moves
+    'types': types
 }
 pkl.dump(dataset, open("../data/dataset.pkl", "wb"))

@@ -16,6 +16,7 @@ class Poke():
         self.data = data
         self.cp_mults = data['cp']
         self.species = data['pokes'][species]
+        self.type = self.get_type()
         self.ivs = ivs
         self.level = level
         self.moveset = self.get_moveset(moveset)
@@ -26,6 +27,8 @@ class Poke():
         self.fainted = False
         self.energy = 0
         self.cooldown = 0
+        self.active_attack = None
+        self.is_shadow = False
 
 
     def calculate_stats(self):
@@ -55,6 +58,13 @@ class Poke():
         else:
             return moveset
 
+
+    def get_type(self):
+        types = self.species['field_pokemon_type']
+        types = types.split(", ")
+        types = [t[:3] for t in types]
+        return types
+
     
     def attack(self, opponent):
         if self.cooldown > 0:
@@ -64,11 +74,42 @@ class Poke():
             #todo
             return
         else:
-            self.fast_attack(opponent)
+            move = self.moveset['fast']
+            self.active_attack = move
+            self.cooldown = move.rate
 
         self.cooldown = self.cooldown - self.turn_length
-        if 
+        if self.cooldown <=0 and self.active_attack is not None:
+            self.damage(move, opponent)
 
 
     def charged(self):
         return self.energy >= self.moveset['charge'].energy
+
+
+    def damage(self, move, opponent):
+        power = 1
+        attack = 1
+        modifier = 1
+        defense = 1
+        stab = 1 + 0.2*(move.type in self.type)
+        ptype = np.prod([
+            self.data['types'][move.type][t] 
+            for t in opponent.type])
+        weather = 1
+        dodged = 1
+        trainer = 1
+
+        modifier = (ptype * 
+                    stab *
+                    weather * 
+                    friendship * 
+                    dodged * 
+                    trainer * 
+                    charge)
+        
+        damage = (0.5 *
+                  power * 
+                  attack * 
+                  modifier /
+                  defense) + 1
