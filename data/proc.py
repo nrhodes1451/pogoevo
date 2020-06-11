@@ -1,7 +1,7 @@
 import pandas as pd
 import pickle as pkl
 
-fp = "../database.xlsx"
+fp = "raw/database.xlsx"
 
 types = pd.read_excel(fp, "Types")
 types['t1'] = types['t1'].map(lambda x: x[:3])
@@ -18,11 +18,17 @@ pkl.dump(cp, open("../data/cpmults.pkl", "wb"))
 base_stats = pd.read_excel(fp, "Base Stats")
 base_stats = base_stats.set_index("Name").to_dict("index")
 
-moves = pd.read_excel(fp, "Moves")
-# Excluding weather ball as it's not a good enough move to warrant
-# special consideration
-moves = moves[moves.Move != "Weather Ball"]
-moves = moves.set_index("Move").to_dict("index")
+fast_moves = pd.read_excel("raw/moves.xlsx",
+    "fast").set_index("MOVE")
+fast_moves['CAT'] = 'fast'
+charge_moves = pd.read_excel("raw/moves.xlsx", 
+    "charge").set_index("MOVE")
+charge_moves['CAT'] = 'charge'
+fields =  ['CAT', 'TYPE', 'PWR', 'ENG', 'TURNS']
+moves = pd.concat([fast_moves[fields],
+    charge_moves[fields]])
+moves['TYPE'] = moves['TYPE'].map(lambda x: x[:3])
+moves = moves.to_dict('index')
 pkl.dump(moves, open("../data/moves.pkl", "wb"))
 
 learned_moves = pd.read_excel(fp, "learned moves")

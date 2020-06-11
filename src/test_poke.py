@@ -8,5 +8,26 @@ ivy = Poke(data, 'Ivysaur')
 mew = Poke(data, 'Mew')
 
 def test_cp():
-    assert ivy.cp == 1699p
+    assert ivy.cp == 1699
     assert mew.cp == 3265
+
+def test_type():
+    assert mew.type == ['Psy']
+    assert len(ivy.type) == 2
+
+def test_hp():
+    assert ivy.hp == 170
+    assert mew.hp == 240
+
+def test_attack():
+    assert ivy.cooldown == 0
+    assert ivy.active_attack is None
+
+    ivy.attack(mew)
+    assert ivy.cooldown == 1
+    assert ivy.active_attack is not None
+    assert mew.hp == 240
+    
+    ivy.attack(mew)
+    assert ivy.cooldown == 0
+    assert ivy.active_attack is None

@@ -3,7 +3,6 @@ import numpy as np
 import random
 import pickle as pkl
 import math
-from move import *
 
 class Poke():
     def __init__(self,
@@ -11,8 +10,7 @@ class Poke():
                  species,
                  ivs = [15, 15, 15],
                  level = 40,
-                 moveset = None,
-                 turn_length = 0.5):
+                 moveset = None):
         self.data = data
         self.cp_mults = data['cp']
         self.species = data['pokes'][species]
@@ -20,7 +18,6 @@ class Poke():
         self.ivs = ivs
         self.level = level
         self.moveset = self.get_moveset(moveset)
-        self.turn_length = turn_length
         self.stats = self.calculate_stats()
         self.cp = self.calculate_cp()
         self.hp = self.stats['sta']
@@ -51,9 +48,19 @@ class Poke():
         if moveset is None:
             fast = self.species['field_primary_moves'].split(", ")
             charge = self.species['field_secondary_moves'].split(", ")
+            
+            fname = random.choice(fast)
+            cname = random.choice(charge)
+            
+            fast = self.data['moves'][fname]
+            charge = self.data['moves'][cname]
+
+            fast['NAME'] = fname
+            charge['NAME'] = cname
+
             return {
-                'fast': Move(self.data['moves'], random.choice(fast)),
-                'charge': Move(self.data['moves'], random.choice(charge))
+                'fast': fast,
+                'charge': charge
             }
         else:
             return moveset
@@ -61,55 +68,52 @@ class Poke():
 
     def get_type(self):
         types = self.species['field_pokemon_type']
-        types = types.split(", ")
-        types = [t[:3] for t in types]
+        types = [t[:3] for t in types.split(", ")]
         return types
 
     
     def attack(self, opponent):
-        if self.cooldown > 0:
-            #todo 
-            return
-        elif self.charged:
-            #todo
-            return
-        else:
-            move = self.moveset['fast']
-            self.active_attack = move
-            self.cooldown = move.rate
+        if self.active_attack is None:
+            if self.charged():
+                self.active_attack = self.moveset['charge']
+                self.cooldown = self.active_attack['TURNS']
+                return
+            else:
+                self.active_attack = self.moveset['fast']
+                self.cooldown = self.active_attack['TURNS']
 
-        self.cooldown = self.cooldown - self.turn_length
+        self.cooldown = self.cooldown - 1
+        
+        # Attack opponent
         if self.cooldown <=0 and self.active_attack is not None:
-            self.damage(move, opponent)
+            self.damage(self.active_attack, opponent)
+            self.active_attack = None
 
 
     def charged(self):
-        return self.energy >= self.moveset['charge'].energy
+        return self.energy >= self.moveset['charge']['ENG']
 
 
     def damage(self, move, opponent):
-        power = 1
-        attack = 1
-        modifier = 1
-        defense = 1
-        stab = 1 + 0.2*(move.type in self.type)
+        power = move['PWR']
+        attack = self.stats['atk']
+        defense = opponent.stats['def']
+        stab = 1 + 0.2*(move['TYPE'] in self.type)
         ptype = np.prod([
-            self.data['types'][move.type][t] 
+            self.data['types'][move['TYPE']][t] 
             for t in opponent.type])
-        weather = 1
-        dodged = 1
-        trainer = 1
+        trainer = 1.3
+        charge = 1
 
         modifier = (ptype * 
                     stab *
-                    weather * 
-                    friendship * 
-                    dodged * 
                     trainer * 
                     charge)
         
-        damage = (0.5 *
+        damage = int(0.5 *
                   power * 
                   attack * 
                   modifier /
                   defense) + 1
+
+        opponent.hp += -damage
