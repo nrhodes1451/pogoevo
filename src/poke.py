@@ -14,6 +14,7 @@ class Poke():
         self.data = data
         self.cp_mults = data['cp']
         self.species = data['pokes'][species]
+        self.name = species
         self.type = self.get_type()
         self.ivs = ivs
         self.level = level
@@ -26,6 +27,7 @@ class Poke():
         self.cooldown = 0
         self.active_attack = None
         self.is_shadow = False
+        self.is_active = False
 
 
     def calculate_stats(self):
@@ -76,17 +78,20 @@ class Poke():
         if self.active_attack is None:
             if self.charged():
                 self.active_attack = self.moveset['charge']
+                self.energy -= self.active_attack['ENG'] 
                 self.cooldown = self.active_attack['TURNS']
                 return
             else:
                 self.active_attack = self.moveset['fast']
+                self.energy = min(100, self.active_attack['ENG'])
                 self.cooldown = self.active_attack['TURNS']
 
         self.cooldown = self.cooldown - 1
         
         # Attack opponent
         if self.cooldown <=0 and self.active_attack is not None:
-            self.damage(self.active_attack, opponent)
+            damage = self.get_damage(self.active_attack, opponent)
+            opponent.hp -= damage
             self.active_attack = None
 
 
@@ -94,11 +99,11 @@ class Poke():
         return self.energy >= self.moveset['charge']['ENG']
 
 
-    def damage(self, move, opponent):
+    def get_damage(self, move, opponent):
         power = move['PWR']
         attack = self.stats['atk']
         defense = opponent.stats['def']
-        stab = 1 + 0.2*(move['TYPE'] in self.type)
+        stab = 1 + 0.2 * (move['TYPE'] in self.type)
         ptype = np.prod([
             self.data['types'][move['TYPE']][t] 
             for t in opponent.type])
@@ -115,5 +120,19 @@ class Poke():
                   attack * 
                   modifier /
                   defense) + 1
+        return damage
 
-        opponent.hp += -damage
+
+    def simulate(self, opponent, turns = 24):
+        mfast = self.moveset['fast']
+        mcharge = self.moveset['charge']
+        iters = turns / mfast['TURNS']
+        damage = iters * self.get_damage(mfast, opponent)
+        energy = iters * mfast['ENG']
+        damage += mcharge['PWR'] * (energy // mcharge['ENG'])
+        return damage
+
+
+    def compare(self, opponent, turns = 24):
+        return ((self.simulate(opponent, turns) * self.hp) /
+                (opponent.simulate(self, turns) * opponent.hp))

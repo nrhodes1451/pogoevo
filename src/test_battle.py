@@ -17,3 +17,6 @@ test_battle = Battle(test_team_1, test_team_2)
 
 def test_turn():
     test_battle.turn()
+
+def test_get_status():
+    return
