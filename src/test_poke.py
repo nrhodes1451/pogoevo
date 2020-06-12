@@ -5,8 +5,15 @@ import math
 
 data = pkl.load(open("data/dataset.pkl", "rb"))
 
-ivy = Poke(data, 'Ivysaur')
-mew = Poke(data, 'Mew')
+
+ivy = Poke(data, 'Ivysaur', moveset={
+    'fast': 'Vine Whip',
+    'charge': 'Sludge Bomb'
+})
+mew = Poke(data, 'Mew', moveset={
+    'fast': 'Shadow Claw',
+    'charge': 'Psyshock'
+})
 
 def test_name():
     assert ivy.name == 'Ivysaur'
@@ -25,7 +32,7 @@ def test_hp():
     assert mew.hp == 240
 
 def test_get_damage():
-    assert ivy.get_damage(ivy.moveset['fast'], mew) == 7
+    assert ivy.get_damage(ivy.moveset['fast'], mew) == 3
 
 def test_attack():
     assert ivy.cooldown == 0
@@ -39,8 +46,8 @@ def test_attack():
     ivy.attack(mew)
     assert ivy.cooldown == 0
     assert ivy.active_attack is None
-    assert mew.hp == 233
+    assert mew.hp == 237
 
 def test_compare():
-    assert ivy.compare(mew) == pytest.approx(0.99167, 0.0001)
+    assert ivy.compare(mew) == pytest.approx(0.39248, 0.0001)
     assert mew.compare(ivy) == 1/ivy.compare(mew)

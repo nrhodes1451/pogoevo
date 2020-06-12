@@ -16,7 +16,9 @@ class Team():
         elif self.active_poke.hp <= 0:
             self.switch(opponent)
         else:
-            self.active_poke.attack(opponent)
+            report = self.active_poke.attack(opponent)
+            return report
+        return None
 
 
     def switch(self, opponent):

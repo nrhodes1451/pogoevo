@@ -3,9 +3,18 @@ from poke import *
 
 data = pkl.load(open("data/dataset.pkl", "rb"))
 
-ivy = Poke(data, 'Ivysaur')
-war = Poke(data, 'Wartortle')
-cha = Poke(data, 'Charmeleon')
+ivy = Poke(data, 'Ivysaur', moveset={
+    'fast': 'Vine Whip',
+    'charge': 'Sludge Bomb'
+})
+war = Poke(data, 'Wartortle', moveset={
+    'fast': 'Water Gun',
+    'charge': 'Aqua Jet'
+})
+cha = Poke(data, 'Charmeleon', moveset={
+    'fast': 'Fire Fang',
+    'charge': 'Fire Punch'
+})
 
 test_team = Team([ivy, war, cha])
 

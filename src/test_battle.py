@@ -1,6 +1,6 @@
-from poke import *
 from battle import *
-from team import *
+import numpy as np
+import pytest
 
 data = pkl.load(open("data/dataset.pkl", "rb"))
 
@@ -15,8 +15,24 @@ test_team_2 = Team([
 
 test_battle = Battle(test_team_1, test_team_2)
 
+
 def test_turn():
+    assert np.all([p.active_poke.active_attack is None
+            for p in test_battle.teams])
+
     test_battle.turn()
 
-def test_get_status():
-    return
+    assert np.all([p.active_poke.active_attack is not None
+            for p in test_battle.teams])
+
+
+def test_generate_report():
+    report = test_battle.generate_report()
+    assert report.shape == (6, 7)
+
+
+def test_run_battle():
+    test_battle.run_battle(False)
+
+    assert test_battle.victor is not None
+    assert test_battle.victor.pokes[0].name == 'Ivysaur'
