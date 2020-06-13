@@ -1,10 +1,11 @@
+from poke import *
+from team import *
 from battle import *
 import copy
 
 data = pkl.load(open("../data/dataset.pkl", "rb"))
 
 def optimise_stats(species, cp=1500):
-    print("Optimising " + species)
     p = Poke(data, species)
     if p.cp < 1400:
         return None
@@ -21,46 +22,38 @@ def optimise_stats(species, cp=1500):
         sta = 15
         p = Poke(data, species, level = level)
         while p.cp > 1500:
-            if (p.stats['def'] > p.stats['atk'] 
-                and p.stats['def'] > p.stats['sta']):
+            stats = p.stats.copy()
+            if sta == 0:
+                stats['sta'] = 0
+            if defn == 0:
+                stats['def'] = 0
+            if atk == 0:
+                stats['atk'] = 0
+            if (stats['def'] > stats['atk'] 
+                and stats['def'] > stats['sta']):
                 defn -= 1
-            elif (p.stats['sta'] > p.stats['atk'] 
-                and p.stats['sta'] > p.stats['def']):
+            elif (stats['sta'] > stats['atk'] 
+                and stats['sta'] > stats['def']):
                 sta -= 1
             else:
                 atk -= 1
             p = Poke(data, species, level = level, ivs = [atk, defn, sta])
     return p
 
-pokelist = {
+great_league = {
     p:optimise_stats(p) for p in data['pokes'].keys()
 }
 
-# Winner
-p1 = Poke(data, 'Blissey', 
-    level = 19,
-    ivs = [15,15,15],
-    moveset = {
-        'fast': 'Pound',
-        'charge': 'Psychic'
-    }
+test_battle = Battle(
+    Team([
+        great_league['Blissey']
+    ]),
+    Team([
+        great_league['Mewtwo']
+    ])
 )
-p1.cp
-p1.energy = -10000
-
-p2 = Poke(data, 'Blissey',
-    level = 20,
-    ivs = [15,0,8],
-    moveset = {
-        'fast': 'Pound',
-        'charge': 'Psychic'
-    }
-)
-p2.cp
-p2.energy = -10000
-
-test_battle = Battle(Team([p1]), Team([p2]))
 test_battle.run_battle()
+
 print(p1.hp)
 print(p2.hp)
 test_battle.generate_report()

@@ -42,6 +42,8 @@ db = db.set_index("Name").to_dict("index")
 pkl.dump(db, open("../data/pogostats.pkl", "wb"))
 
 pokes = pkl.load(open("../data/processed_pokes.pkl", "rb"))
+# Filter out all pokes without movesets (~10% - these are mostly unreleased)
+pokes = {k:v for k,v in pokes.items() if v['field_primary_moves'] != ''}
 
 dataset = {
     'pokes': pokes,
