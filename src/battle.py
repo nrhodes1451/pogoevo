@@ -1,3 +1,4 @@
+import numpy as np
 from team import *
 
 class Battle():

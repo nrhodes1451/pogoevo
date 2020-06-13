@@ -4,6 +4,7 @@ import copy
 data = pkl.load(open("../data/dataset.pkl", "rb"))
 
 def optimise_stats(species, cp=1500):
+    print("Optimising " + species)
     p = Poke(data, species)
     if p.cp < 1400:
         return None
@@ -29,7 +30,11 @@ def optimise_stats(species, cp=1500):
             else:
                 atk -= 1
             p = Poke(data, species, level = level, ivs = [atk, defn, sta])
+    return p
 
+pokelist = {
+    p:optimise_stats(p) for p in data['pokes'].keys()
+}
 
 # Winner
 p1 = Poke(data, 'Blissey', 
