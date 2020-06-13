@@ -40,20 +40,56 @@ def optimise_stats(species, cp=1500):
             p = Poke(data, species, level = level, ivs = [atk, defn, sta])
     return p
 
-great_league = {
+gl_stats = {
     p:optimise_stats(p) for p in data['pokes'].keys()
 }
 
-test_battle = Battle(
-    Team([
-        great_league['Blissey']
-    ]),
-    Team([
-        great_league['Mewtwo']
-    ])
-)
-test_battle.run_battle()
+def test_moveset(p):
+    movesets = []
+    for k in gl_stats.keys():
+        test_battle = Battle(
+            Team([
+                Poke(data, p.name, ivs = p.ivs, level = p.level)
+            ]),
+            Team([
+                copy.copy(gl_stats[k])
+            ])
+        )
+        movesets.append(test_battle.run_battle())
+    return(movesets)
 
-print(p1.hp)
-print(p2.hp)
-test_battle.generate_report()
+i = 0
+mvsts = []
+for p in gl_stats.values():
+    i = i + 1
+    print(i)
+    mvsts.append(test_moveset(p))
+
+movesets = pd.concat([pd.concat(m) for m in mvsts])
+# pkl.dump(movesets, open("../data/moveset_tests.pkl", "wb"))
+movesets = pkl.load(open("../data/moveset_tests.pkl", "rb"))
+
+# Filter for team 0 (pokemon was test case)
+movesets = movesets[movesets['team'] == 0]
+# Select movesets with the maximum damage dealt / (damage taken as % HP)
+movesets = movesets.groupby(['poke','fast_move','charge_move']).sum().reset_index()
+hp = pd.DataFrame.from_dict(
+    {k:v.hp for k,v in gl_stats.items()},
+    orient = 'index',
+    columns = ['hp']).rename_axis('poke').reset_index()
+movesets = pd.merge(movesets, hp)
+movesets['ratio'] = movesets['dmg_dealt'] / (movesets['dmg_taken']/movesets['hp'])
+max_ratio = movesets.groupby(['poke']).max().reset_index()
+max_ratio = max_ratio[['poke','ratio']]
+movesets = pd.merge(max_ratio, movesets)
+movesets['ratio'] = movesets['ratio'] / np.mean(movesets['ratio'])
+
+# interrogate
+movesets.sort_values(by=['ratio'])
+movesets.sort_values(by=['ratio'], ascending=False)
+
+# remove movesets without enough data points
+movesets = movesets[movesets['turns_active'] > 200]
+
+# save list of initial values
+pkl.dump(movesets, open("../data/initial_values.pkl", "wb"))
