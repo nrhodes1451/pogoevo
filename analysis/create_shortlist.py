@@ -2,8 +2,9 @@ from poke import *
 from team import *
 from battle import *
 import copy
+import pickle as pkl
 
-data = pkl.load(open("../data/dataset.pkl", "rb"))
+data = pkl.load(open("data/dataset.pkl", "rb"))
 
 def optimise_stats(species, cp=1500):
     p = Poke(data, species)
@@ -58,16 +59,28 @@ def test_moveset(p):
         movesets.append(test_battle.run_battle())
     return(movesets)
 
+p = gl_stats['Zekrom']
+
+timeit test_moveset(p)
+
 i = 0
 mvsts = []
 for p in gl_stats.values():
     i = i + 1
     print(i)
+    # 960ms per loop
+    # 650ms after cythonising poke
+    # 650ms after cythonising poke/battle/team
+    # 285ms after removing call to pandas result
     mvsts.append(test_moveset(p))
 
-movesets = pd.concat([pd.concat(m) for m in mvsts])
-# pkl.dump(movesets, open("../data/moveset_tests.pkl", "wb"))
-movesets = pkl.load(open("../data/moveset_tests.pkl", "rb"))
+
+mvsts = np.reshape(mvsts, len(gl_stats)**2)
+mvsts = [pd.DataFrame(p) for p in mvsts]
+mvsts = pd.concat(mvsts)
+
+# pkl.dump(mvsts, open("data/moveset_tests.pkl", "wb"))
+movesets = pkl.load(open("data/moveset_tests.pkl", "rb"))
 
 # Filter for team 0 (pokemon was test case)
 movesets = movesets[movesets['team'] == 0]
@@ -84,12 +97,18 @@ max_ratio = max_ratio[['poke','ratio']]
 movesets = pd.merge(max_ratio, movesets)
 movesets['ratio'] = movesets['ratio'] / np.mean(movesets['ratio'])
 
+# deathrate is average damage taken as % hp
+# e.g. dr of 1 means lose every battle
+movesets['deathrate'] = (movesets['dmg_taken'] /
+                        (movesets['hp'] * 441))
+
 # interrogate
 movesets.sort_values(by=['ratio'])
-movesets.sort_values(by=['ratio'], ascending=False)
+movesets.sort_values(by=['deathrate'])
 
-# remove movesets without enough data points
+# remove movesets without enough data points (Mew has random moves :( )
 movesets = movesets[movesets['turns_active'] > 200]
 
 # save list of initial values
-pkl.dump(movesets, open("../data/initial_values.pkl", "wb"))
+pkl.dump(movesets, open("data/initial_values.pkl", "wb"))
+

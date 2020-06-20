@@ -2,9 +2,11 @@ import numpy as np
 from team import *
 
 class Battle():
-    def __init__(self, team1, team2, 
-                 shields = False,
-                 switching = False):
+    def __init__(object self,
+                 object team1,
+                 object team2, 
+                 bint shields = False,
+                 bint switching = False):
         # todo - this shouldn't live in instructor
         # pokes to order with each attack
         self.teams = team1, team2
@@ -16,7 +18,7 @@ class Battle():
         # N.B. Higher attack goes first in a move tie
 
 
-    def run_battle(self, report = True):
+    def run_battle(object self, report = True):
         # Main battle while loop
         while self.victor is None:
             self.turn()
@@ -27,11 +29,11 @@ class Battle():
              return True
             
 
-    def turn(self):
+    def turn(object self):
         # Each turn lasts 0.5 seconds
         # Damage is dealt at the end of the move
-        t1 = self.teams[0].take_turn(self.teams[1].active_poke)
-        t2 = self.teams[1].take_turn(self.teams[0].active_poke)
+        cdef object t1 = self.teams[0].take_turn(self.teams[1].active_poke)
+        cdef object t2 = self.teams[1].take_turn(self.teams[0].active_poke)
         
         if self.teams[0].all_fainted:
             self.victor = self.teams[1]
@@ -40,7 +42,7 @@ class Battle():
         self.turn_count += 1
 
 
-    def order_by_attack(self):
+    def order_by_attack(object self):
         if (self.teams[0].active_poke.stats['atk'] >
             self.teams[1].active_poke.stats['atk']):
             return self.teams[0], self.teams[1]
@@ -48,8 +50,8 @@ class Battle():
             return self.teams[1], self.teams[0]
 
 
-    def generate_report(self):
-        report =  {
+    def generate_report(object self):
+        cdef dict report =  {
             'team': [],
             'poke': [],
             'fast_move': [],
@@ -70,4 +72,4 @@ class Battle():
                 report['turns_active'].append(p.turns_taken)
 
 
-        return pd.DataFrame(report)
+        return report

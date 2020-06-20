@@ -5,13 +5,13 @@ import pickle as pkl
 import math
 
 class Poke():
-    def __init__(self,
-                 data,
-                 species,
-                 ivs = [15, 15, 15],
-                 level = 40,
-                 moveset = None,
-                 shields = 0):
+    def __init__(object self,
+                 dict data,
+                 str species,
+                 list ivs = [15, 15, 15],
+                 int level = 40,
+                 dict moveset = None,
+                 int shields = 0):
         self.data = data
         self.species = data['pokes'][species]
         self.name = species
@@ -32,7 +32,7 @@ class Poke():
         self.turns_taken = 0
 
 
-    def calculate_stats(self):
+    def calculate_stats(object self):
         self.stats = {
             'atk': self.species['atk']+self.ivs[0],
             'def': self.species['def']+self.ivs[1],
@@ -48,16 +48,16 @@ class Poke():
         self.hp = int(self.stats['sta'])
 
 
-    def calculate_cp(self):
+    def calculate_cp(object self):
         return max(10, math.floor((self.stats['atk'] * 
                  self.stats['def']**0.5 *
                  self.stats['sta']**0.5 *
                  self.cp_mult**2)/10))
 
 
-    def get_moveset(self, moveset):
-        fname = ''
-        cname = ''
+    def get_moveset(object self, dict moveset):
+        cdef str fname = ''
+        cdef str cname = ''
         if moveset is None:
             fast = self.species['field_primary_moves'].split(", ")
             charge = self.species['field_secondary_moves'].split(", ")
@@ -80,13 +80,12 @@ class Poke():
         }
 
 
-    def get_type(self):
-        types = self.species['field_pokemon_type']
-        types = [t[:3] for t in types.split(", ")]
+    def get_type(object self):
+        cdef list types = [t[:3] for t in self.species['field_pokemon_type'].split(", ")]
         return types
 
     
-    def attack(self, opponent):
+    def attack(object self, object opponent):
         self.turns_taken += 1
         if self.cooldown <= 0 and self.active_attack is None:
             if self.charged():
@@ -116,27 +115,27 @@ class Poke():
             self.active_attack = None
 
 
-    def charged(self):
+    def charged(object self):
         return self.energy >= self.moveset['charge']['ENG']
 
 
-    def get_damage(self, move, opponent):
-        power = move['PWR']
-        attack = self.stats['atk']
-        defense = opponent.stats['def']
-        stab = 1 + 0.2 * (move['TYPE'] in self.type)
-        ptype = np.prod([
+    def get_damage(object self, dict move, object opponent):
+        cdef int power = move['PWR']
+        cdef int attack = self.stats['atk']
+        cdef int defense = opponent.stats['def']
+        cdef float stab = 1 + 0.2 * (move['TYPE'] in self.type)
+        cdef float ptype = np.prod([
             self.data['types'][move['TYPE']][t] 
             for t in opponent.type])
-        trainer = 1.3
-        charge = 1
+        cdef float trainer = 1.3
+        cdef int charge = 1
 
-        modifier = (ptype * 
+        cdef float modifier = (ptype * 
                     stab *
                     trainer * 
                     charge)
         
-        damage = int(0.5 *
+        cdef float damage = int(0.5 *
                   power * 
                   attack * 
                   modifier /
