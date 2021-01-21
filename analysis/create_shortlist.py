@@ -44,6 +44,7 @@ def optimise_stats(species, cp=1500):
 gl_stats = {
     p:optimise_stats(p) for p in data['pokes'].keys()
 }
+pkl.dump(gl_stats, open("data/opt_stats_gl", "wb"))
 
 def test_moveset(p):
     movesets = []
@@ -111,4 +112,3 @@ movesets = movesets[movesets['turns_active'] > 200]
 
 # save list of initial values
 pkl.dump(movesets, open("data/initial_values.pkl", "wb"))
-

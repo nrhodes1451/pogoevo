@@ -21,15 +21,9 @@ class Poke():
         self.moveset = self.get_moveset(moveset)
         self.cp_mult = data['cp'][self.level]
         self.shields = shields
-        self.calculate_stats()
-        self.fainted = False
-        self.energy = 0
-        self.cooldown = 0
-        self.active_attack = None
         self.is_shadow = False
-        self.is_active = False
-        self.damage_dealt = 0
-        self.turns_taken = 0
+        self.calculate_stats()
+        self.heal()
 
 
     def calculate_stats(object self):
@@ -83,6 +77,17 @@ class Poke():
     def get_type(object self):
         cdef list types = [t[:3] for t in self.species['field_pokemon_type'].split(", ")]
         return types
+
+
+    def heal(object self):
+        self.hp = int(self.stats['sta'])
+        self.fainted = False
+        self.energy = 0
+        self.cooldown = 0
+        self.active_attack = None
+        self.is_active = False
+        self.damage_dealt = 0
+        self.turns_taken = 0
 
     
     def attack(object self, object opponent):
