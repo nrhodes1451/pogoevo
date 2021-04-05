@@ -1,7 +1,8 @@
 # pogoevo
-Evolutionary algorithm for Pokemon Go team selection
+
+Cython package for Pokémon Go battle simulation.
 
 
-## Install
+## Installation
 
 python setup.py build_ext --inplace
